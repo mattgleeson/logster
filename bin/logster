@@ -50,6 +50,7 @@ import logging.handlers
 import fcntl
 import socket 
 import traceback
+import hashlib
 
 from time import time, strftime, gmtime
 from math import floor
@@ -284,8 +285,9 @@ def end_locking(lockfile_fd, lockfile_name):
 def main():
 
     dirsafe_logfile = log_file.replace('/','-')
-    logtail_state_file = '%s/logtail-%s%s.state' % (state_dir, class_name, dirsafe_logfile)
-    logtail_lock_file  = '%s/logtail-%s%s.lock' % (state_dir, class_name, dirsafe_logfile)
+    csum = hashlib.sha1(options.parser_options or '').hexdigest()[0:7]
+    logtail_state_file = '%s/logtail-%s%s-%s.state' % (state_dir, class_name, dirsafe_logfile, csum)
+    logtail_lock_file  = '%s/logtail-%s%s-%s.lock' % (state_dir, class_name, dirsafe_logfile, csum)
     shell_tail = "%s -f %s -o %s" % (logtail, log_file, logtail_state_file)
 
     logger.info("Executing parser %s on logfile %s" % (class_name, log_file))
